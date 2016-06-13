@@ -22,7 +22,7 @@ class GameVC: UIViewController {
     var timer: NSTimer!
     var startDate: NSDate!
     
-    let gameTime = 10.0 //game time in seconds
+    let gameTime = 60.0 //game time in seconds
     var correctCards = 0
     var wrongCards = 0
     
