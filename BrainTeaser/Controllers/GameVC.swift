@@ -19,8 +19,8 @@ class GameVC: UIViewController {
     
     var currentCard: Card!
     var previousCard: Card!
-    var timer: NSTimer!
-    var startDate: NSDate!
+    var timer: Timer!
+    var startDate: Date!
     
     let gameTime = 60.0 //game time in seconds
     var correctCards = 0
@@ -35,7 +35,7 @@ class GameVC: UIViewController {
         self.view.addSubview(currentCard)
     }
     
-    @IBAction func yesPressed(sender: CustomButton) {
+    @IBAction func yesPressed(_ sender: CustomButton) {
         if sender.titleLabel?.text == "YES" {
             checkAnswer(true)
         }
@@ -46,11 +46,11 @@ class GameVC: UIViewController {
         showNextCard()
     }
     
-    @IBAction func noPressed(sender: CustomButton) {
+    @IBAction func noPressed(_ sender: CustomButton) {
         checkAnswer(false)
         showNextCard()
     }
-    func checkAnswer(guess: Bool) -> Bool {
+    func checkAnswer(_ guess: Bool) -> Bool {
         let isSame = currentCard.currentShape == previousCard.currentShape
         if guess == isSame {
             correctCards += 1
@@ -79,9 +79,9 @@ class GameVC: UIViewController {
             self.view.addSubview(next)
             currentCard = next
             
-            if noBtn.hidden {
-                noBtn.hidden = false
-                yesBtn.setTitle("YES", forState: .Normal)
+            if noBtn.isHidden {
+                noBtn.isHidden = false
+                yesBtn.setTitle("YES", for: UIControlState())
             }
             AnimationEngine.animateToPosition(next, position: AnimationEngine.screenCenterPosition, completion: { (anim: POPAnimation!, finished: Bool) in
                 
@@ -90,27 +90,27 @@ class GameVC: UIViewController {
         }
     }
     func createCardFromNib() -> Card? {
-        return NSBundle.mainBundle().loadNibNamed("Card", owner: self, options: nil).first as? Card
+        return Bundle.main.loadNibNamed("Card", owner: self, options: nil)?.first as? Card
     }
     func startTimer() {
-        timer = NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: #selector(GameVC.updateTimer), userInfo: nil, repeats: true)
-        startDate = NSDate()
+        timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(GameVC.updateTimer), userInfo: nil, repeats: true)
+        startDate = Date()
     }
     func stopTimer() {
         timer.invalidate()
     }
     func updateTimer() {
-        let currentDate = NSDate()
-        let timeDifference = currentDate.timeIntervalSinceDate(startDate)
+        let currentDate = Date()
+        let timeDifference = currentDate.timeIntervalSince(startDate)
         
         let timeLeft = gameTime - timeDifference
         
         if timeLeft <= 0 {
             stopTimer()
             countdownLabel.text = "1:00"
-            yesBtn.setTitle("START", forState: .Normal)
-            noBtn.hidden = true
-            performSegueWithIdentifier("showScore", sender: self)
+            yesBtn.setTitle("START", for: UIControlState())
+            noBtn.isHidden = true
+            performSegue(withIdentifier: "showScore", sender: self)
         }
         else {
             //update the time label. Truncate the Double by converting it to an Int
@@ -119,8 +119,8 @@ class GameVC: UIViewController {
             countdownLabel.text = "\(minutesLeft):\(secondsLeft)"
         }
     }
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if let scoreVC = segue.destinationViewController as? ScoreVC {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let scoreVC = segue.destination as? ScoreVC {
             scoreVC.correctCards = correctCards
             scoreVC.wrongCards = wrongCards
         }

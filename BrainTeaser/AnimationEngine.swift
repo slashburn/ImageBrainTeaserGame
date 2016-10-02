@@ -12,17 +12,17 @@ import pop
 
 class AnimationEngine {
     class var offScreenRightPosition: CGPoint {
-        return CGPointMake(UIScreen.mainScreen().bounds.width, CGRectGetMidY(UIScreen.mainScreen().bounds))
+        return CGPoint(x: UIScreen.main.bounds.width, y: UIScreen.main.bounds.midY)
     }
     class var offScreenLeftPosition: CGPoint {
-        return CGPointMake(-UIScreen.mainScreen().bounds.width, CGRectGetMidY(UIScreen.mainScreen().bounds))
+        return CGPoint(x: -UIScreen.main.bounds.width, y: UIScreen.main.bounds.midY)
     }
     class var screenCenterPosition: CGPoint {
         
         /*
             TODO: swap the values if we are in Landscape mode
          */
-        return CGPointMake(CGRectGetMidX(UIScreen.mainScreen().bounds), CGRectGetMidY(UIScreen.mainScreen().bounds))
+        return CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY)
     }
 
 
@@ -38,41 +38,41 @@ class AnimationEngine {
         self.constraints = constraints
     }
     
-    func animateOnScreen(delay: Int) {
-        let time = dispatch_time(DISPATCH_TIME_NOW, Int64(Double(delay) * Double(NSEC_PER_SEC)))
-        dispatch_after(time, dispatch_get_main_queue()){
+    func animateOnScreen(_ delay: Int) {
+        let time = DispatchTime.now() + Double(Int64(Double(delay) * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+        DispatchQueue.main.asyncAfter(deadline: time){
             var index = 0
             repeat {
                 let moveAnim = POPSpringAnimation(propertyNamed: kPOPLayoutConstraintConstant)
-                moveAnim.toValue = self.originalConstants[index]
-                moveAnim.springBounciness = 12
-                moveAnim.springSpeed = 12
+                moveAnim?.toValue = self.originalConstants[index]
+                moveAnim?.springBounciness = 12
+                moveAnim?.springSpeed = 12
                 
                 if index > 0 {
-                    moveAnim.dynamicsFriction += 10 + CGFloat(index)
+                    moveAnim?.dynamicsFriction += 10 + CGFloat(index)
                 }
                 
                 let con = self.constraints[index]
-                con.pop_addAnimation(moveAnim, forKey: "moveOnScreen")
+                con.pop_add(moveAnim, forKey: "moveOnScreen")
                 index = index + 1
                 
             } while (index < self.constraints.count)
         }
     }
-    class func animateToPosition(view: UIView, position: CGPoint, completion: (POPAnimation!, Bool) -> Void) {
+    class func animateToPosition(_ view: UIView, position: CGPoint, completion: @escaping (POPAnimation?, Bool) -> Void) {
         let moveAnim = POPSpringAnimation(propertyNamed: kPOPLayerPosition)
-        moveAnim.toValue = NSValue(CGPoint: position)
-        moveAnim.springBounciness = 8
-        moveAnim.springSpeed = 8
-        moveAnim.completionBlock = completion
-        view.pop_addAnimation(moveAnim, forKey: "moveToPosition")
+        moveAnim?.toValue = NSValue(cgPoint: position)
+        moveAnim?.springBounciness = 8
+        moveAnim?.springSpeed = 8
+        moveAnim?.completionBlock = completion
+        view.pop_add(moveAnim, forKey: "moveToPosition")
     }
-    class func popAnimation(view: UIView) {
+    class func popAnimation(_ view: UIView) {
         let scaleAnim = POPSpringAnimation(propertyNamed: kPOPLayerScaleXY)
-        scaleAnim.velocity = NSValue(CGSize: CGSizeMake(3.0, 3.0))
-        scaleAnim.toValue = NSValue(CGSize: CGSizeMake(1.0, 1.0))
-        scaleAnim.springBounciness = 25
+        scaleAnim?.velocity = NSValue(cgSize: CGSize(width: 3.0, height: 3.0))
+        scaleAnim?.toValue = NSValue(cgSize: CGSize(width: 1.0, height: 1.0))
+        scaleAnim?.springBounciness = 25
 
-        view.layer.pop_addAnimation(scaleAnim, forKey: "layerScaleSpringAnimation")
+        view.layer.pop_add(scaleAnim, forKey: "layerScaleSpringAnimation")
     }
 }
